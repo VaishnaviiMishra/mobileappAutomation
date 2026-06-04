@@ -1,0 +1,22 @@
+appium-python-client>=5.3.0
+zxing-cpp>=2.0.0
+Pillow>=10.0.0
+pytest>=8.0.0
+allure-pytest>=2.13.0
+allure-python-commons>=2.13.0
+
+
+
+Appium Server
+vaishnavi.mishra@IBS-LAP-525:~$ export ANDROID_HOME="$HOME/Android/Sdk"
+vaishnavi.mishra@IBS-LAP-525:~$ export ANDROID_SDK_ROOT="$HOME/Android/Sdk"
+vaishnavi.mishra@IBS-LAP-525:~$ export PATH="$ANDROID_HOME/platform-tools:$PATH"
+vaishnavi.mishra@IBS-LAP-525:~$ npx appium
+
+
+Appium Inspector
+vaishnavi.mishra@IBS-LAP-525:~/Downloads$ ./Appium-Inspector-2026.2.1-linux-x86_64.AppImage --no-sandbox
+
+
+Activate ven
+source .venv/bin/activate

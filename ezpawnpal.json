@@ -1,0 +1,13 @@
+{
+    "platformName": "Android",
+    "appium:automationName": "UiAutomator2",
+    "appium:deviceName": "SM-T500",
+    "appium:udid": "R9ZR505QC8L",
+    "appium:appPackage": "com.ezpawnpal",
+    "appium:appActivity": ".SplashActivity",
+    "appium:noReset": true,
+    "appium:ensureWebviewsHavePages": true,
+    "appium:nativeWebScreenshot": true,
+    "appium:newCommandTimeout": 3600,
+    "appium:connectHardwareKeyboard": true
+}
