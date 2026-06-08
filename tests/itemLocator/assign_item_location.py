@@ -11,6 +11,8 @@ from __future__ import annotations
 
 import unittest
 
+import allure
+
 from pages.itemLocator.assign_item_location import AssignItemLocationPage
 from tests.shared_session import SharedAppiumTestCase
 
@@ -21,6 +23,8 @@ class TestAssignItemLocation(SharedAppiumTestCase):
         super().setUpClass()
         cls.assign_page = AssignItemLocationPage(cls.driver, cls.home)
 
+    @allure.epic("3. Item Locator (Moving and finding inventory)")
+    @allure.feature("Assign item location full flow (A 24 / A 54)")
     def test_assign_item_location_full_flow(self) -> None:
         """Scan item → toggle A 24 / A 54 → confirm → home."""
         item_id, chosen_location = self.assign_page.execute_full_assign_flow(timeout=90)

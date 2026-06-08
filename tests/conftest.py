@@ -8,7 +8,7 @@ from __future__ import annotations
 
 
 def pytest_collection_modifyitems(config, items) -> None:
-    """Keep main-suite tests in load_suite() order (login → … → jewelry recount)."""
+    """Keep main-suite tests in load_suite() order (login → … → closing attempt 4)."""
     try:
         from tests.test_suite import TestEzPawnPalSuite, load_suite
     except ImportError:

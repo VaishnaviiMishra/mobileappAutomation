@@ -46,13 +46,6 @@ class TestLoginErrors(unittest.TestCase):
             cls.driver.quit()
             cls.driver = None
 
-    @classmethod
-    def tearDownClass(cls) -> None:
-        if getattr(cls, "driver", None) is not None:
-            cls.driver.quit()
-            cls.driver = None
-
-    # ADD THIS NEW METHOD HERE:
     def tearDown(self) -> None:
         outcome = getattr(self, '_outcome', None)
         if outcome:
@@ -68,7 +61,9 @@ class TestLoginErrors(unittest.TestCase):
                     except Exception as e:
                         print(f"Failed to capture screenshot: {e}")
                     break
-
+   
+    @allure.epic("1. User Action (App state, settings, auth)")
+    @allure.feature("Negative scenarios: wrong password, bad IP")
     def test_login_error_scenarios(self) -> None:
         """Use the same login flow, but with invalid values per scenario."""
 

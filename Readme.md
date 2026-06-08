@@ -14,7 +14,7 @@ pages/
   item_manager/    item_manager_page.py, barcode_scan_page.py, barcode_decode.py
 
 tests/
-  test_suite.py      default Appium flow (one session, 9 tests)
+  test_suite.py      default Appium flow (one session, 10 tests)
   shared_session.py  login-once driver setup
   refresh_data/      refresh_data.py (long sync — run via run_refresh_test.py)
   runner_utils.py    results table for run_tests / run_refresh_test
@@ -93,7 +93,8 @@ python run_tests.py
 | `python run_tests.py setup_location` | `test_07_setup_location_change` |
 | `python run_tests.py label_confimation` | `test_08_label_confimation` |
 | `python run_tests.py recount` | `test_09_item_count_jewelry_recount` |
-| `python run_tests.py` (default) | All 9 tests in **one app session** (login once; hamburger between tests) |
+| `python run_tests.py item4recount` | `test_10_item_count_closing_attempt4_recount` |
+| `python run_tests.py` (default) | All 10 tests in **one app session** (login once; hamburger between tests) |
 | `python run_tests.py all` | Same as default |
 
 **Run everything (unittest tables):**

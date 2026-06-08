@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import unittest
 
+import allure
+
 from pages.item_manager.barcode_scan_error import BarcodeScanErrorPage
 from tests.shared_session import SharedAppiumTestCase
 
@@ -19,6 +21,8 @@ class TestBarcodeScanError(SharedAppiumTestCase):
         super().setUpClass()
         cls.retail_error = BarcodeScanErrorPage(cls.driver, cls.home)
 
+    @allure.epic("2. Item Manager (Retail lookup and scanning)")
+    @allure.feature("Wrong-store barcode scan error and recovery")
     def test_retail_wrong_store_barcode_flow(self) -> None:
         """Scan wrong barcode, verify wrong-store modal, tap Scan a different item."""
         self.retail_error.ensure_on_home_before_menu()

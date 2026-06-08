@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import unittest
 
+import allure
+
 from pages.item_manager.barcode_scan_page import BarcodeScanPage
 from tests.shared_session import SharedAppiumTestCase
 
@@ -19,6 +21,8 @@ class TestBarcodeScan(SharedAppiumTestCase):
         super().setUpClass()
         cls.retail = BarcodeScanPage(cls.driver, cls.home)
 
+    @allure.epic("2. Item Manager (Retail lookup and scanning)")
+    @allure.feature("Retail scan screen layout verification")
     def test_retail_scan_layout(self) -> None:
         """Verify all static UI elements on the Retail Item Manager scan screen."""
         self.retail.open_from_home()
@@ -41,6 +45,8 @@ class TestBarcodeScan(SharedAppiumTestCase):
     @unittest.skip(
         "Item 230053938582 requires a different employee/store login; re-enable when credentials are available."
     )
+    @allure.epic("2. Item Manager (Retail lookup and scanning)")
+    @allure.feature("Live barcode scan to item details")
     def test_retail_live_barcode_scan(self) -> None:
         """Default store: scan barcode, verify item details (silver / allowable discount)."""
         self.retail.ensure_on_home_before_menu()
@@ -53,6 +59,8 @@ class TestBarcodeScan(SharedAppiumTestCase):
         self.retail.return_to_dashboard_via_menu()
         self.assertTrue(self.home.is_home_visible())
 
+    @allure.epic("2. Item Manager (Retail lookup and scanning)")
+    @allure.feature("Store 14401 item details, edit color, and update flow")
     def test_retail_item_details_store_14401(self) -> None:
         """Store 14401: details, edit color, update/print, Item Updated modal, go home."""
         self.retail.ensure_on_home_before_menu()

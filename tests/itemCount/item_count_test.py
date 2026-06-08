@@ -11,6 +11,8 @@ from __future__ import annotations
 
 import unittest
 
+import allure
+
 from pages.itemCount.item_count_page import ItemCountPage
 from tests.shared_session import SharedAppiumTestCase
 
@@ -21,6 +23,8 @@ class TestItemCount(SharedAppiumTestCase):
         super().setUpClass()
         cls.item_count = ItemCountPage(cls.driver, cls.home)
 
+    @allure.epic("4. Item Count (Auditing and counting)")
+    @allure.feature("Today's Counts hub layout verification")
     def test_item_count_layout(self) -> None:
         """Verify Today's Counts hub chrome and footer actions."""
         self.item_count.open_from_home()
@@ -43,6 +47,8 @@ class TestItemCount(SharedAppiumTestCase):
             self.assertTrue(exit_btn.is_displayed())
             self.assertTrue(exit_btn.is_enabled())
 
+    @allure.epic("4. Item Count (Auditing and counting)")
+    @allure.feature("Manage jewelry cases increment and save flow")
     def test_item_count_manage_jewelry_cases(self) -> None:
         """
         Manage jewelry cases → tap + → Save and finish → return to Item Count hub.

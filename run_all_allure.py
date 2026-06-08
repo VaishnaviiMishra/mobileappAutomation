@@ -3,7 +3,7 @@
 Run ALL ezPawnPal Appium suites with a combined Allure report.
 
 Execution order (matches ``run_all.py``):
-  1. tests/test_suite.py          — main flow, one session, 9 tests (login → recount)
+  1. tests/test_suite.py          — main flow, one session, 10 tests (login → closing attempt 4)
   2. tests/login/loginerrors.py   — login error paths
   3. tests/item_manager/barcode_scan_error.py
   4. tests/itemLocator/assignitem_scan_error.py

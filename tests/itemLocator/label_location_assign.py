@@ -13,6 +13,8 @@ from __future__ import annotations
 
 import unittest
 
+import allure
+
 from pages.itemLocator.label_location_assign import LabelLocationAssignPage
 from tests.shared_session import SharedAppiumTestCase
 
@@ -23,6 +25,8 @@ class TestLabelLocationAssign(SharedAppiumTestCase):
         super().setUpClass()
         cls.label_page = LabelLocationAssignPage(cls.driver, cls.home)
 
+    @allure.epic("3. Item Locator (Moving and finding inventory)")
+    @allure.feature("Setup Location full flow (scan QR, change label, confirm)")
     def test_setup_location_full_flow(self) -> None:
         """End-to-end: Item Locator → Setup Location → scan QR →
         Change → pick location → Confirm → Confirm popup → Go to Home."""

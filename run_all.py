@@ -3,7 +3,7 @@
 Run all ezPawnPal Appium test suites sequentially (unittest runners + results tables).
 
 Executes in order:
-  1. run_tests.py         — main suite (9 tests, one Appium session)
+  1. run_tests.py         — main suite (10 tests, one Appium session)
   2. run_error_tests.py   — login / barcode / assign error flows
   3. run_refresh_test.py  — long refresh-data flows (5–15+ min each)
 
@@ -23,7 +23,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent
 
 SCRIPTS = (
-    ("Main suite (9 tests)", "run_tests.py"),
+    ("Main suite (10 tests)", "run_tests.py"),
     ("Error-path tests", "run_error_tests.py"),
     ("Refresh-data tests", "run_refresh_test.py"),
 )

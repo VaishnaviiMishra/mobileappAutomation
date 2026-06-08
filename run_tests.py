@@ -4,13 +4,14 @@ Run ezPawnPal Appium tests.
 
 From the project root, with Appium listening (default http://127.0.0.1:4723) and the device connected:
 
-  python run_tests.py              # full suite — 9 tests, one session, results table
+  python run_tests.py              # full suite — 10 tests, one session, results table
   python run_tests.py barcode      # retail barcode scan (test 05)
-  python run_tests.py recount      # jewelry recount only (test 09)
+  python run_tests.py recount      # opening jewelry recount (test 09)
+  python run_tests.py item4recount # closing jewelry attempt 4 (test 10)
   python run_tests.py login        # login check only
 
 The default suite keeps the app open and uses the hamburger menu between tests.
-Tests 01–09: login → home → item count → locator → barcode → assign → setup → label → recount.
+Tests 01–10: login → home → item count → locator → barcode → assign → setup → label → opening recount → closing attempt 4.
 
 Long refresh flows (5–15+ min each) are **not** included; use ``python run_refresh_test.py``.
 
@@ -69,6 +70,16 @@ _ALIASES: dict[str, str] = {
     "item_recount": f"{_SUITE_CLASS}.test_09_item_count_jewelry_recount",
     "itemrecount": f"{_SUITE_CLASS}.test_09_item_count_jewelry_recount",
     "jewelry_recount": f"{_SUITE_CLASS}.test_09_item_count_jewelry_recount",
+
+    # Test 10
+    "item4recount": f"{_SUITE_CLASS}.test_10_item_count_closing_attempt4_recount",
+    "item4_recount": f"{_SUITE_CLASS}.test_10_item_count_closing_attempt4_recount",
+    "closing_recount": f"{_SUITE_CLASS}.test_10_item_count_closing_attempt4_recount",
+    "attempt4": f"{_SUITE_CLASS}.test_10_item_count_closing_attempt4_recount",
+    "item4recount_standalone": (
+        "tests.itemCount.item4recount_test.TestItem4RecountFlow"
+        ".test_01_closing_jewelry_attempt4_flow"
+    ),
     
     # Test 01
     "login": f"{_SUITE_CLASS}.test_01_login_and_store_location_setup",

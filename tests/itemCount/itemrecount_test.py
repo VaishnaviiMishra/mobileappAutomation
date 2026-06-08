@@ -76,7 +76,8 @@ class TestItemCountRecountFlow(SharedAppiumTestCase):
     def setUp(self) -> None:
         self.home.navigate_to_dashboard_via_menu()
 
-    @allure.title("Full Jewelry Recount Flow")
+    @allure.epic("4. Item Count (Auditing and counting)")
+    @allure.feature("Full jewelry recount flow (3 attempts, store 14401)")
     def test_01_full_jewelry_recount_flow(self) -> None:
         """Execute the 3-attempt recount loop and verify final submission option."""
         run_full_jewelry_recount_flow(self, self.item_recount)

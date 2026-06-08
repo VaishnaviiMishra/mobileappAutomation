@@ -42,6 +42,8 @@ class TestRefreshData(SharedAppiumTestCase):
                         print(f"Failed to capture screenshot: {e}")
                     break
 
+    @allure.epic("1. User Action (App state, settings, auth)")
+    @allure.feature("Profile menu layout verification")
     def test_01_account_menu_ui(self) -> None:
         """Verify profile menu layout (accountlogo.xml) without starting refresh."""
         self.refresh.open_profile_menu_from_home()
@@ -49,6 +51,8 @@ class TestRefreshData(SharedAppiumTestCase):
         self.refresh.close_profile_menu()
         self.assertTrue(self.home.is_home_visible(), "Home should be visible after closing profile menu.")
 
+    @allure.epic("1. User Action (App state, settings, auth)")
+    @allure.feature("Refresh Product MDM data sync flow")
     def test_02_refresh_product_mdm_data_flow(self) -> None:
         """
         Refresh Product MDM Data → Yes → Data Sync until Downloaded → Close.
@@ -58,6 +62,8 @@ class TestRefreshData(SharedAppiumTestCase):
         self.refresh.run_refresh_product_mdm_flow()
         self.assertTrue(self.home.is_home_visible(), "Home should be visible after MDM refresh.")
 
+    @allure.epic("1. User Action (App state, settings, auth)")
+    @allure.feature("Refresh Item Locations data sync flow")
     def test_03_refresh_item_locations_data_flow(self) -> None:
         """
         Refresh Item Locations Data → Yes → Data Sync until Downloaded → Close.

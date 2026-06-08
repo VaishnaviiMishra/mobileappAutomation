@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import unittest
 
+import allure
+
 from pages.itemLocator.assignitem_scan_error import AssignItemScanErrorPage
 from tests.shared_session import SharedAppiumTestCase
 
@@ -19,6 +21,8 @@ class TestAssignItemScanError(SharedAppiumTestCase):
         super().setUpClass()
         cls.assign_error = AssignItemScanErrorPage(cls.driver, cls.home)
 
+    @allure.epic("3. Item Locator (Moving and finding inventory)")
+    @allure.feature("Assign location wrong-store barcode error and recovery")
     def test_assign_item_wrong_store_scan_flow(self) -> None:
         """Scan wrong barcode in Assign Item Location, verify modal, then recover."""
         item_id = self.assign_error.complete_assign_scan_to_wrong_store_modal()

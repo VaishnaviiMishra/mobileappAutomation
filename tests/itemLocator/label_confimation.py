@@ -12,6 +12,8 @@ from __future__ import annotations
 
 import unittest
 
+import allure
+
 from pages.itemLocator.label_confimation import LabelConfimationPage
 from pages.itemLocator.label_location_assign import LabelLocationAssignPage
 from tests.shared_session import SharedAppiumTestCase
@@ -25,6 +27,8 @@ class TestLabelConfimation(SharedAppiumTestCase):
         super().setUpClass()
         cls.confirm_page = LabelConfimationPage(cls.driver, cls.home)
 
+    @allure.epic("3. Item Locator (Moving and finding inventory)")
+    @allure.feature("Verify CURRENT LABEL matches last setup change")
     def test_current_label_matches_last_setup_change(self) -> None:
         """Re-scan label → CURRENT LABEL must match what test_09 assigned."""
         expected = (

@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import unittest
 
+import allure
+
 from pages.login.login_page import LoginPage
 from tests.shared_session import SharedAppiumTestCase, EMPLOYEE_ID, PASSWORD, IP_ADDRESS
 
@@ -21,6 +23,8 @@ class TestLoginPage(SharedAppiumTestCase):
         super().setUpClass()
         cls.login_page = cls.login
 
+    @allure.epic("1. User Action (App state, settings, auth)")
+    @allure.feature("Login screen layout verification")
     def test_login_layout(self) -> None:
         """Verify all static UI elements on the login screen are visible."""
         self.login_page.launch_app()
@@ -37,6 +41,8 @@ class TestLoginPage(SharedAppiumTestCase):
         self.assertTrue(self.login_page.login_button.is_displayed())
         self.assertTrue(self.login_page.app_version_footer.is_displayed())
 
+    @allure.epic("1. User Action (App state, settings, auth)")
+    @allure.feature("IP address modal layout verification")
     def test_ip_modal_layout(self) -> None:
         """Verify all static UI elements on the IP modal are visible."""
         self.login_page.launch_app()
@@ -52,6 +58,8 @@ class TestLoginPage(SharedAppiumTestCase):
         self.assertTrue(self.login_page.ip_address_input.is_displayed())
         self.assertTrue(self.login_page.ip_continue_button.is_displayed())
 
+    @allure.epic("1. User Action (App state, settings, auth)")
+    @allure.feature("End-to-end login with credentials and IP")
     def test_credentials_and_ip_flow(self) -> None:
         """End-to-end: launch → credentials → IP → Continue."""
         self.login_page.launch_app()

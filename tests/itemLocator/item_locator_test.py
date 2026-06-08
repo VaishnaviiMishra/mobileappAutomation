@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import unittest
 
+import allure
+
 from pages.itemLocator.item_locator_page import ItemLocatorPage
 from tests.shared_session import SharedAppiumTestCase
 
@@ -19,6 +21,8 @@ class TestItemLocatorHub(SharedAppiumTestCase):
         super().setUpClass()
         cls.item_locator = ItemLocatorPage(cls.driver, cls.home)
 
+    @allure.epic("3. Item Locator (Moving and finding inventory)")
+    @allure.feature("Item Locator hub layout verification")
     def test_item_locator_layout(self) -> None:
         """Verify all static UI elements on the Item Locator hub are visible."""
         self.item_locator.open_from_home()
@@ -40,6 +44,8 @@ class TestItemLocatorHub(SharedAppiumTestCase):
         self.assertTrue(self.item_locator.get_setup_title().is_displayed())
         self.assertTrue(self.item_locator.get_setup_blurb().is_displayed())
 
+    @allure.epic("3. Item Locator (Moving and finding inventory)")
+    @allure.feature("Setup Location navigation from hub")
     def test_setup_location_navigates(self) -> None:
         """Tap Setup Location card and verify it navigates away from hub."""
         self.item_locator.open_from_home()
