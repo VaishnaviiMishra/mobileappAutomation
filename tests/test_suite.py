@@ -179,6 +179,32 @@ class TestEzPawnPalSuite(SharedAppiumTestCase):
         item4_recount = Item4RecountPage(self.driver, self.home)
         run_closing_jewelry_attempt4_flow(self, item4_recount)
 
+
+# Standalone item-count flows (own Appium session + credentials — not in TestEzPawnPalSuite).
+ITEM_COUNT_STANDALONE_TESTS: tuple[str, ...] = (
+    "tests.itemCount.firearms_test.TestFirearmsRecountFlow"
+    ".test_01_full_firearms_recount_flow",
+    "tests.itemCount.firearms4recount_test.TestFirearms4RecountFlow"
+    ".test_01_opening_firearms_attempt4_flow",
+    "tests.itemCount.premium_watch_test.TestPremiumWatchRecountFlow"
+    ".test_01_full_pw_recount_flow",
+    "tests.itemCount.premium_watch4recount_test.TestPremiumWatch4RecountFlow"
+    ".test_01_additional_pw_attempt4_flow",
+    "tests.itemCount.electronics_test.TestElectronicsRecountFlow"
+    ".test_01_full_electronics_recount_flow",
+    "tests.itemCount.electronics4recount_test.TestElectronics4RecountFlow"
+    ".test_01_additional_electronics_attempt4_flow",
+)
+
+
+def load_item_count_standalone_suite() -> unittest.TestSuite:
+    loader = unittest.TestLoader()
+    suite = unittest.TestSuite()
+    for name in ITEM_COUNT_STANDALONE_TESTS:
+        suite.addTests(loader.loadTestsFromName(name))
+    return suite
+
+
 def load_suite() -> unittest.TestSuite:
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()

@@ -25,21 +25,29 @@ class TestBarcodeScanError(SharedAppiumTestCase):
     @allure.feature("Wrong-store barcode scan error and recovery")
     def test_retail_wrong_store_barcode_flow(self) -> None:
         """Scan wrong barcode, verify wrong-store modal, tap Scan a different item."""
+        print("\n--- Navigating to Retail Item Manager via Menu ---")
         self.retail_error.ensure_on_home_before_menu()
         self.retail_error.navigate_to_retail_item_manager_via_menu()
 
+        print("\n--- Scanning Wrong Store Barcode ---")
         item_id = self.retail_error.complete_barcode_scan_to_wrong_store_modal()
         self.assertTrue(len(item_id) > 0)
+        print(f"--- Invalid Scanned Item ID: {item_id} ---")
 
+        print("\n--- Verifying Wrong Store Modal UI Elements ---")
         self.assertTrue(self.retail_error.wrong_store_badge.is_displayed())
         self.assertTrue(self.retail_error.wrong_store_title.is_displayed())
         self.assertTrue(self.retail_error.wrong_store_message.is_displayed())
         self.assertTrue(self.retail_error.scan_different_item_button.is_displayed())
 
+        print("\n--- Tapping 'Scan a different item' for Recovery ---")
         self.retail_error.click_scan_different_item()
         self.retail_error.wait_for_retail_scan_screen()
+        
+        print("\n--- Verifying Recovery to Retail Scan Screen ---")
         self.assertTrue(self.retail_error.scan_heading.is_displayed())
         self.assertTrue(self.retail_error.confirm_button.is_displayed())
+        print("--- Recovery Successful ---")
 
 
 def load_suite() -> unittest.TestSuite:

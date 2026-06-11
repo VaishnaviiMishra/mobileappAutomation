@@ -27,18 +27,21 @@ class TestAssignItemLocation(SharedAppiumTestCase):
     @allure.feature("Assign item location full flow (A 24 / A 54)")
     def test_assign_item_location_full_flow(self) -> None:
         """Scan item → toggle A 24 / A 54 → confirm → home."""
+        print("\n--- Starting Full Assign Item Location Flow ---")
         item_id, chosen_location = self.assign_page.execute_full_assign_flow(timeout=90)
-
+        print(f"\n--- Flow Complete! Item: {item_id} | Assigned to: {chosen_location} ---")
         self.assertEqual(
             item_id.replace(" ", ""),
             AssignItemLocationPage.STORE_14401_ITEM_ID,
         )
         chosen_key = AssignItemLocationPage._normalize_location_key(chosen_location)
+        
         self.assertIn(
             chosen_key,
             AssignItemLocationPage.TOGGLE_LOCATION_KEYS,
             f"Expected A 24 or A 54, got {chosen_location!r}.",
         )
+        print("\n--- Verifying Navigation Back to Home ---")
         self.assertTrue(
             self.home.is_home_visible(),
             "Home screen should be visible after completing assign item location flow.",

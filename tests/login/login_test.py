@@ -27,6 +27,7 @@ class TestLoginPage(SharedAppiumTestCase):
     @allure.feature("Login screen layout verification")
     def test_login_layout(self) -> None:
         """Verify all static UI elements on the login screen are visible."""
+        print("\n--- Launching App and Verifying Login Screen Layout ---")
         self.login_page.launch_app()
 
         self.assertTrue(self.login_page.header_title.is_displayed())
@@ -40,14 +41,18 @@ class TestLoginPage(SharedAppiumTestCase):
         self.assertTrue(self.login_page.show_password_toggle.is_displayed())
         self.assertTrue(self.login_page.login_button.is_displayed())
         self.assertTrue(self.login_page.app_version_footer.is_displayed())
+        print("\n--- Static Layout Verification Complete ---")
 
     @allure.epic("1. User Action (App state, settings, auth)")
     @allure.feature("IP address modal layout verification")
     def test_ip_modal_layout(self) -> None:
         """Verify all static UI elements on the IP modal are visible."""
+        print("\n--- Launching Application ---")
         self.login_page.launch_app()
+        print("\n--- Entering Employee Credentials ---")
         self.login_page.enter_credentials(EMPLOYEE_ID, PASSWORD)
         self.login_page.click_log_in()
+        print("\n--- Waiting for IP Configuration Modal ---")
         self.login_page.wait_for_ip_modal()
 
         self.assertTrue(self.login_page.ip_modal_root.is_displayed())
@@ -66,10 +71,13 @@ class TestLoginPage(SharedAppiumTestCase):
         self.login_page.enter_credentials(EMPLOYEE_ID, PASSWORD)
         self.login_page.click_log_in()
         self.login_page.wait_for_ip_modal()
+        print(f"\n--- Entering IP Address ({IP_ADDRESS}) and Continuing ---")
         self.login_page.ensure_ip_address_and_continue(IP_ADDRESS)
-
-        screen = self.home.wait_for_post_login_screen()
-        self.assertIn(screen, ("data_sync", "home"))
+        
+        print("\n--- Verifying Post-Login Routing ---")
+        path = self.home.handle_post_login_either_path()
+        self.assertIn(path, ("data_sync", "home"))
+        self.assertTrue(self.home.is_home_visible())
 
 
 def load_suite() -> unittest.TestSuite:

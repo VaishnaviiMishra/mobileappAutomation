@@ -31,6 +31,9 @@ class TestLabelLocationAssign(SharedAppiumTestCase):
         """End-to-end: Item Locator → Setup Location → scan QR →
         Change → pick location → Confirm → Confirm popup → Go to Home."""
         chosen = self.label_page.execute_full_setup_flow()
+        print(f"\n--- Setup Complete! New Location Reference: {chosen} ---")
+        print("\n--- Verifying Navigation Back to Dashboard ---")
+        
         self.assertTrue(
             self.home.is_home_visible(),
             "Home screen should be visible after completing Setup Location flow.",

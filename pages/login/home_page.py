@@ -2,9 +2,18 @@
 
 from __future__ import annotations
 
+import time
+
 from appium.webdriver.common.appiumby import AppiumBy
 
-from pages.common.appium_wait import AppiumWait, AppiumWaitTimeout, wait_for_present, wait_until
+from pages.common.appium_wait import (
+    AppiumWait,
+    AppiumWaitTimeout,
+    is_fatal_driver_error,
+    wait_for_clickable,
+    wait_for_present,
+    wait_until,
+)
 
 
 class HomePage:
@@ -32,6 +41,7 @@ class HomePage:
 
     DATA_SYNC_LOAD_TIMEOUT = 120.0
     POST_LOGIN_DETECT_TIMEOUT = 45.0
+    LATE_DATA_SYNC_TIMEOUT = 12.0
 
     ANDROID_BACK_KEYCODE = 4
 
@@ -53,11 +63,31 @@ class HomePage:
             f'new UiSelector().text("{self.MODULES_HEADING}")',
         )
 
+    def _is_locator_displayed(self, locator: tuple[str, str]) -> bool:
+        try:
+            elements = self.driver.find_elements(*locator)
+        except Exception as exc:
+            if is_fatal_driver_error(exc):
+                raise
+            return False
+        for el in elements:
+            try:
+                if el.is_displayed():
+                    return True
+            except Exception as exc:
+                if is_fatal_driver_error(exc):
+                    raise
+                continue
+        return False
+
     def is_data_sync_visible(self) -> bool:
-        return bool(self.driver.find_elements(*self._data_sync_title_locator()))
+        return self._is_locator_displayed(self._data_sync_title_locator())
 
     def is_home_visible(self) -> bool:
-        return bool(self.driver.find_elements(*self._home_modules_locator()))
+        """MODULES home is visible and not blocked by the Data Sync overlay."""
+        if self.is_data_sync_visible():
+            return False
+        return self._is_locator_displayed(self._home_modules_locator())
 
     # --- Navigation ---
 
@@ -81,27 +111,90 @@ class HomePage:
             message="Neither Data Sync popup nor home screen appeared after login.",
         )
 
-    def wait_for_sync_downloads_complete(self) -> None:
-        """Wait until both MDM and Item Locations show Downloaded."""
+    def _data_sync_close_locators(self) -> tuple[tuple[str, str], ...]:
+        return (
+            (AppiumBy.ACCESSIBILITY_ID, self.CLOSE_BUTTON_DESC),
+            (AppiumBy.ANDROID_UIAUTOMATOR, f'new UiSelector().text("{self.CLOSE_BUTTON_DESC}")'),
+            (AppiumBy.XPATH, '//android.widget.Button[@content-desc="Close"]'),
+            (
+                AppiumBy.XPATH,
+                '//android.widget.Button[.//android.widget.TextView[@text="Close"]]',
+            ),
+        )
 
-        def _both_downloaded() -> bool | None:
-            downloaded = self.driver.find_elements(
-                AppiumBy.ANDROID_UIAUTOMATOR,
-                f'new UiSelector().textContains("{self.DOWNLOADED_STATUS}")',
-            )
-            visible = [el for el in downloaded if el.is_displayed()]
-            return True if len(visible) >= 2 else None
+    def _find_data_sync_close_button(self):
+        for locator in self._data_sync_close_locators():
+            for el in self.driver.find_elements(*locator):
+                try:
+                    if el.is_displayed() and el.is_enabled():
+                        return el
+                except Exception:
+                    continue
+        return None
+
+    def wait_for_sync_downloads_complete(self) -> None:
+        """Wait until sync finishes (two Downloaded rows or an enabled Close button)."""
+
+        def _sync_ready() -> bool | None:
+            if not self.is_data_sync_visible():
+                return None
+
+            close_btn = self._find_data_sync_close_button()
+            downloaded = self.get_downloaded_elements()
+            if len(downloaded) >= 2:
+                return True
+            if close_btn is not None:
+                return True
+            return None
 
         wait_until(
             self.driver,
-            _both_downloaded,
+            _sync_ready,
             timeout=self.DATA_SYNC_LOAD_TIMEOUT,
             poll=0.5,
-            message="Data Sync did not finish — expected two 'Downloaded' statuses.",
+            message=(
+                "Data Sync did not finish — expected two 'Downloaded' statuses "
+                "or an enabled Close button."
+            ),
         )
 
+    def _wait_for_late_data_sync_popup(self) -> bool:
+        """Data Sync can appear shortly after MODULES renders underneath."""
+        if self.is_data_sync_visible():
+            return True
+
+        end = time.time() + self.LATE_DATA_SYNC_TIMEOUT
+        while time.time() < end:
+            if self.is_data_sync_visible():
+                return True
+            time.sleep(0.3)
+        return False
+
     def dismiss_data_sync_popup(self) -> None:
-        self.data_sync_close_button.click()
+        if not self.is_data_sync_visible():
+            return
+
+        self.wait_for_sync_downloads_complete()
+
+        last_error: Exception | None = None
+        for locator in self._data_sync_close_locators():
+            try:
+                close_btn = wait_for_clickable(
+                    self.driver,
+                    locator,
+                    timeout=10,
+                    poll=0.25,
+                    message=f"Data Sync Close button not clickable: {locator!r}",
+                )
+                close_btn.click()
+                break
+            except AppiumWaitTimeout as exc:
+                last_error = exc
+        else:
+            raise AppiumWaitTimeout(
+                "Data Sync Close button was not clickable on any known locator."
+            ) from last_error
+
         wait_until(
             self.driver,
             lambda: True if not self.is_data_sync_visible() else None,
@@ -109,12 +202,48 @@ class HomePage:
             message="Data Sync popup did not close after tapping Close.",
         )
 
+    def ensure_data_sync_cleared(self) -> bool:
+        """
+        If the Data Sync overlay is showing, wait for downloads and tap Close.
+        Returns True when a popup was dismissed, False when none was visible.
+        """
+        if not self.is_data_sync_visible() and not self._wait_for_late_data_sync_popup():
+            return False
+        self.dismiss_data_sync_popup()
+        return True
+
+    def wait_for_home_ready(self, timeout: float | None = None) -> None:
+        """
+        Block until MODULES home is usable.
+
+        Data Sync can appear seconds or minutes after login while tests 01–02
+        are still running — call this before each test method in a shared session.
+        """
+        sync_handled = False
+
+        def _ready() -> bool | None:
+            nonlocal sync_handled
+            if self.is_data_sync_visible():
+                self.dismiss_data_sync_popup()
+                sync_handled = True
+                return None
+            if self.is_home_visible():
+                return True
+            return None
+
+        wait_until(
+            self.driver,
+            _ready,
+            timeout=timeout or self.DATA_SYNC_LOAD_TIMEOUT,
+            poll=0.5,
+            message="Home screen not ready — Data Sync overlay or MODULES dashboard missing.",
+        )
+
     DASHBOARD_MENU_ITEM = "Dashboard"
 
     def navigate_to_dashboard_via_menu(self) -> None:
         """Return to MODULES home via hamburger → Dashboard (never Android system Back)."""
-        if self.is_data_sync_visible():
-            self.dismiss_data_sync_popup()
+        self.ensure_data_sync_cleared()
         if self.is_home_visible():
             return
 
@@ -158,21 +287,23 @@ class HomePage:
     def handle_post_login_either_path(self) -> str:
         """
         Case 1: Data Sync → wait for load → Close → home.
-        Case 2: Home screen directly.
+        Case 2: Home screen directly (Data Sync may still appear shortly after).
         Returns which case ran: ``"data_sync"`` or ``"home"``.
         """
         screen = self.wait_for_post_login_screen()
-        if screen == "data_sync":
-            self.wait_for_sync_downloads_complete()
+        handled_sync = screen == "data_sync"
+        if not handled_sync:
+            handled_sync = self._wait_for_late_data_sync_popup()
+        if handled_sync or self.is_data_sync_visible():
             self.dismiss_data_sync_popup()
-            wait_for_present(
-                self.driver,
-                self._home_modules_locator(),
-                timeout=self.wait.timeout,
-                message="Home screen did not appear after closing Data Sync.",
-            )
-            return "data_sync"
-        return "home"
+            handled_sync = True
+        wait_until(
+            self.driver,
+            lambda: True if self.is_home_visible() else None,
+            timeout=self.wait.timeout,
+            message="Home screen (MODULES, no Data Sync overlay) did not appear after post-login handling.",
+        )
+        return "data_sync" if handled_sync else "home"
 
     # --- Data Sync element accessors (dataSync.xml) ---
 

@@ -68,7 +68,9 @@ class TestLoginErrors(unittest.TestCase):
         """Use the same login flow, but with invalid values per scenario."""
 
         with self.subTest(scenario="invalid employee ID"):
+            print("\n--- SubTest: Invalid Employee ID Scenario ---")
             self.login_errors.launch_app()
+            print(f"--- Entering Invalid Employee ID: {LoginErrorsPage.INVALID_EMPLOYEE_ID} ---")
             self.login_errors.enter_credentials(
                 LoginErrorsPage.INVALID_EMPLOYEE_ID,
                 PASSWORD,
@@ -76,11 +78,16 @@ class TestLoginErrors(unittest.TestCase):
             self.login_errors.click_log_in()
             self.login_errors.wait_for_ip_modal()
             self.login_errors.enter_ip_on_modal_and_continue(IP_ADDRESS)
+            
+            print("--- Waiting for 'Employee Not Found' Error ---")
             error = self.login_errors.wait_for_employee_not_found_error()
             self.assertTrue(error.is_displayed())
+            print("--- Invalid Employee ID Error Verified ---\n")
 
         with self.subTest(scenario="invalid password"):
+            print("\n--- SubTest: Invalid Password Scenario ---")
             self.login_errors.launch_app()
+            print("--- Entering Invalid Password ---")
             self.login_errors.enter_credentials(
                 EMPLOYEE_ID,
                 LoginErrorsPage.INVALID_PASSWORD,
@@ -88,20 +95,28 @@ class TestLoginErrors(unittest.TestCase):
             self.login_errors.click_log_in()
             self.login_errors.wait_for_ip_modal()
             self.login_errors.enter_ip_on_modal_and_continue(IP_ADDRESS)
+            
+            print("--- Waiting for 'Password Incorrect' Error ---")
             error = self.login_errors.wait_for_password_incorrect_error()
             self.assertTrue(error.is_displayed())
+            print("--- Invalid Password Error Verified ---\n")
 
         with self.subTest(scenario="invalid IP address"):
+            print("\n--- SubTest: Invalid IP Address Scenario ---")
             self.login_errors.launch_app()
             self.login_errors.enter_credentials(EMPLOYEE_ID, PASSWORD)
             self.login_errors.click_log_in()
             self.login_errors.wait_for_ip_modal()
+            
+            print(f"--- Entering Invalid IP Address: {LoginErrorsPage.INVALID_IP_ADDRESS} ---")
             self.login_errors.enter_ip_on_modal_and_continue(
                 LoginErrorsPage.INVALID_IP_ADDRESS,
             )
+            
+            print("--- Waiting for 'IP Location' Error ---")
             error = self.login_errors.wait_for_ip_location_error()
             self.assertTrue(error.is_displayed())
-
+            print("--- Invalid IP Error Verified ---\n")
 
 def load_suite() -> unittest.TestSuite:
     loader = unittest.TestLoader()

@@ -25,8 +25,9 @@ class TestItemLocatorHub(SharedAppiumTestCase):
     @allure.feature("Item Locator hub layout verification")
     def test_item_locator_layout(self) -> None:
         """Verify all static UI elements on the Item Locator hub are visible."""
+        print("\n--- Navigating to Item Locator Hub ---")
         self.item_locator.open_from_home()
-
+        print("\n--- Tapping 'Setup Location' Action Card ---")
         self.assertTrue(self.item_locator.get_hamburger_button().is_displayed())
         self.assertTrue(self.item_locator.get_module_title().is_displayed())
         self.assertTrue(self.item_locator.get_subtitle().is_displayed())
@@ -48,15 +49,22 @@ class TestItemLocatorHub(SharedAppiumTestCase):
     @allure.feature("Setup Location navigation from hub")
     def test_setup_location_navigates(self) -> None:
         """Tap Setup Location card and verify it navigates away from hub."""
+        print("\n--- Navigating to Item Locator Hub ---")
         self.item_locator.open_from_home()
+        
+        print("\n--- Tapping 'Setup Location' Action Card ---")
         self.item_locator.tap_setup_location()
+        
+        print("\n--- Verifying Screen Transition Away from Hub ---")
         self.assertFalse(self.item_locator.is_on_hub())
+        
+        print("\n--- Returning to Hub via Back Button ---")
         self.item_locator.return_to_hub()
         self.assertTrue(self.item_locator.is_on_hub())
 
+        print("\n--- Routing Back to Dashboard ---")
         self.item_locator.back_to_home()
         self.assertTrue(self.home.is_home_visible())
-
 
 def load_suite() -> unittest.TestSuite:
     loader = unittest.TestLoader()

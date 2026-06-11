@@ -4,14 +4,19 @@ Run ezPawnPal Appium tests.
 
 From the project root, with Appium listening (default http://127.0.0.1:4723) and the device connected:
 
-  python run_tests.py              # full suite — 10 tests, one session, results table
+  python run_tests.py              # full run — shared suite (10) + item-count standalone (6)
+  python run_tests.py suite        # shared session only (tests 01–10)
   python run_tests.py barcode      # retail barcode scan (test 05)
   python run_tests.py recount      # opening jewelry recount (test 09)
   python run_tests.py item4recount # closing jewelry attempt 4 (test 10)
+  python run_tests.py firearms     # firearms recount (standalone session)
+  python run_tests.py premium_watch
+  python run_tests.py electronics  # see --list for all short names
   python run_tests.py login        # login check only
 
-The default suite keeps the app open and uses the hamburger menu between tests.
-Tests 01–10: login → home → item count → locator → barcode → assign → setup → label → opening recount → closing attempt 4.
+The shared suite (tests 01–10) keeps one app session and uses the hamburger menu between tests.
+Item-count recount flows (firearms, premium watch, electronics) run in separate sessions with
+their own credentials — not part of the shared session.
 
 Long refresh flows (5–15+ min each) are **not** included; use ``python run_refresh_test.py``.
 
@@ -25,12 +30,16 @@ import sys
 import unittest
 
 from tests.runner_utils import TimedTextTestRunner, print_results_table
+from tests.test_suite import ITEM_COUNT_STANDALONE_TESTS
 
 _SUITE_MODULE = "tests.test_suite"
 _SUITE_CLASS = f"{_SUITE_MODULE}.TestEzPawnPalSuite"
+_STANDALONE_ITEM_COUNT = "item_count_standalone"
 
-_FULL_SUITE = (_SUITE_MODULE,)
-_EXPAND_ALL = frozenset({"all", "suite", "everything"})
+_SHARED_SUITE = (_SUITE_MODULE,)
+_FULL_SUITE = _SHARED_SUITE + ITEM_COUNT_STANDALONE_TESTS
+_EXPAND_ALL = frozenset({"all", "everything"})
+_EXPAND_SHARED = frozenset({"suite", "shared"})
 
 _ALIASES: dict[str, str] = {
     # Test 05
@@ -80,6 +89,25 @@ _ALIASES: dict[str, str] = {
         "tests.itemCount.item4recount_test.TestItem4RecountFlow"
         ".test_01_closing_jewelry_attempt4_flow"
     ),
+
+    # Item-count standalone (own session + credentials)
+    "firearms": ITEM_COUNT_STANDALONE_TESTS[0],
+    "firearms_recount": ITEM_COUNT_STANDALONE_TESTS[0],
+    "firearms4recount": ITEM_COUNT_STANDALONE_TESTS[1],
+    "firearms_4recount": ITEM_COUNT_STANDALONE_TESTS[1],
+    "opening_firearms_attempt4": ITEM_COUNT_STANDALONE_TESTS[1],
+    "premium_watch": ITEM_COUNT_STANDALONE_TESTS[2],
+    "premium_watch_recount": ITEM_COUNT_STANDALONE_TESTS[2],
+    "pw_recount": ITEM_COUNT_STANDALONE_TESTS[2],
+    "premium_watch4recount": ITEM_COUNT_STANDALONE_TESTS[3],
+    "premium_watch4": ITEM_COUNT_STANDALONE_TESTS[3],
+    "pw4recount": ITEM_COUNT_STANDALONE_TESTS[3],
+    "electronics": ITEM_COUNT_STANDALONE_TESTS[4],
+    "electronics_recount": ITEM_COUNT_STANDALONE_TESTS[4],
+    "elec_recount": ITEM_COUNT_STANDALONE_TESTS[4],
+    "electronics4recount": ITEM_COUNT_STANDALONE_TESTS[5],
+    "electronics4": ITEM_COUNT_STANDALONE_TESTS[5],
+    "elec4recount": ITEM_COUNT_STANDALONE_TESTS[5],
     
     # Test 01
     "login": f"{_SUITE_CLASS}.test_01_login_and_store_location_setup",
@@ -97,6 +125,8 @@ _MULTI_ALIASES: dict[str, tuple[str, ...]] = {
     "test_item_manager": (
         f"{_SUITE_CLASS}.test_05_retail_item_manager_live_barcode_scan",
     ),
+    _STANDALONE_ITEM_COUNT: ITEM_COUNT_STANDALONE_TESTS,
+    "item_count_recount": ITEM_COUNT_STANDALONE_TESTS,
 }
 
 _DEFAULT_ORDER = _FULL_SUITE
@@ -108,6 +138,9 @@ def _resolve_names(args: list[str]) -> tuple[str, ...]:
         key = arg.strip()
         if key in _EXPAND_ALL:
             names.extend(_FULL_SUITE)
+            continue
+        if key in _EXPAND_SHARED:
+            names.extend(_SHARED_SUITE)
             continue
         if key in _MULTI_ALIASES:
             names.extend(_MULTI_ALIASES[key])
@@ -152,8 +185,11 @@ def main() -> int:
             target = _MULTI_ALIASES.get(k) or (_ALIASES[k],)
             for t in target:
                 print(f"  {k} -> {t}")
-        print("Default: full suite (one session)")
+        print("Default: shared suite + item-count standalone flows")
         print(f"  {_SUITE_MODULE}")
+        for name in ITEM_COUNT_STANDALONE_TESTS:
+            print(f"  {name}")
+        print("Shared session only: suite")
         return 0
 
     if not args.tests:

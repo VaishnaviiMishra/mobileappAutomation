@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import json
 import os
-import sys
 import unittest
 from pathlib import Path
 
@@ -18,6 +17,7 @@ from allure_commons.types import AttachmentType
 from appium import webdriver
 from appium.options.android import UiAutomator2Options
 
+from pages.common.appium_wait import is_fatal_driver_error
 from pages.login.home_page import HomePage
 from pages.login.login_page import LoginPage
 
@@ -25,7 +25,9 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 EMPLOYEE_ID = "500000011"
 PASSWORD = "222222"
 IP_ADDRESS = "10.10.10.140"
-
+# EMPLOYEE_ID = "500000016"
+# PASSWORD = "222222"
+# IP_ADDRESS = "10.40.236.3"
 
 class SharedAppiumTestCase(unittest.TestCase):
     driver: webdriver.Remote
@@ -34,6 +36,15 @@ class SharedAppiumTestCase(unittest.TestCase):
 
     _session_logged_in: bool = False
     post_login_path: str | None = None
+
+    @classmethod
+    def _safe_quit_driver(cls) -> None:
+        if getattr(cls, "driver", None) is not None:
+            try:
+                cls.driver.quit()
+            except Exception:
+                pass
+            cls.driver = None
 
     @classmethod
     def _start_driver(cls) -> None:
@@ -51,12 +62,30 @@ class SharedAppiumTestCase(unittest.TestCase):
         cls.home = HomePage(cls.driver)
 
     @classmethod
-    def _login_once(cls) -> None:
+    def _login_with_credentials(cls, employee_id: str, password: str, ip_address: str) -> None:
         if cls._session_logged_in:
             return
-        cls.login.complete_login_flow(EMPLOYEE_ID, PASSWORD, IP_ADDRESS)
-        cls.post_login_path = cls.home.handle_post_login_either_path()
-        cls._session_logged_in = True
+        last_error: BaseException | None = None
+        for attempt in range(2):
+            try:
+                cls.post_login_path = cls.login.complete_login_flow(
+                    employee_id, password, ip_address, home=cls.home,
+                )
+                cls._session_logged_in = True
+                return
+            except Exception as exc:
+                last_error = exc
+                if attempt == 0 and is_fatal_driver_error(exc):
+                    cls._safe_quit_driver()
+                    cls._start_driver()
+                    continue
+                raise
+        if last_error:
+            raise last_error
+
+    @classmethod
+    def _login_once(cls) -> None:
+        cls._login_with_credentials(EMPLOYEE_ID, PASSWORD, IP_ADDRESS)
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -65,11 +94,13 @@ class SharedAppiumTestCase(unittest.TestCase):
         cls._start_driver()
         cls._login_once()
 
+    def setUp(self) -> None:
+        # Data Sync may appear after login while earlier tests are still running.
+        self.home.wait_for_home_ready()
+
     @classmethod
     def tearDownClass(cls) -> None:
-        if getattr(cls, "driver", None) is not None:
-            cls.driver.quit()
-            cls.driver = None
+        cls._safe_quit_driver()
         cls._session_logged_in = False
 
     def tearDown(self) -> None:

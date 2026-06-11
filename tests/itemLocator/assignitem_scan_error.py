@@ -25,17 +25,21 @@ class TestAssignItemScanError(SharedAppiumTestCase):
     @allure.feature("Assign location wrong-store barcode error and recovery")
     def test_assign_item_wrong_store_scan_flow(self) -> None:
         """Scan wrong barcode in Assign Item Location, verify modal, then recover."""
+        print("\n--- Starting Assign Item Location (Wrong Store Scan) Flow ---")
         item_id = self.assign_error.complete_assign_scan_to_wrong_store_modal()
         self.assertTrue(len(item_id) > 0)
+        print(f"--- Invalid Scanned Item ID: {item_id} ---")
 
+        print("\n--- Verifying Wrong Store Modal UI Elements ---")
         self.assertTrue(self.assign_error.wrong_store_badge.is_displayed())
         self.assertTrue(self.assign_error.wrong_store_title.is_displayed())
         self.assertTrue(self.assign_error.wrong_store_message.is_displayed())
         self.assertTrue(self.assign_error.scan_different_item_button.is_displayed())
 
+        print("\n--- Tapping 'Scan a different item' for Recovery ---")
         self.assign_error.click_scan_different_item()
         self.assign_error.wait_for_assign_scan_screen()
-
+        print("--- Successfully Recovered to Scan Screen ---")
 
 def load_suite() -> unittest.TestSuite:
     loader = unittest.TestLoader()

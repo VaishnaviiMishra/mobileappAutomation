@@ -3,11 +3,12 @@
 Run ALL ezPawnPal Appium suites with a combined Allure report.
 
 Execution order (matches ``run_all.py``):
-  1. tests/test_suite.py          — main flow, one session, 10 tests (login → closing attempt 4)
-  2. tests/login/loginerrors.py   — login error paths
-  3. tests/item_manager/barcode_scan_error.py
-  4. tests/itemLocator/assignitem_scan_error.py
-  5. tests/refresh_data/refresh_data.py — long sync flows (5–15+ min each)
+  1. tests/test_suite.py          — shared flow, one session, 10 tests (login → closing attempt 4)
+  2. tests/itemCount/*_test.py    — item-count standalone flows (own session each)
+  3. tests/login/loginerrors.py   — login error paths
+  4. tests/item_manager/barcode_scan_error.py
+  5. tests/itemLocator/assignitem_scan_error.py
+  6. tests/refresh_data/refresh_data.py — long sync flows (5–15+ min each)
 
 Prerequisites:
   - Appium server: http://127.0.0.1:4723
@@ -30,6 +31,12 @@ PROJECT_ROOT = Path(__file__).resolve().parent
 # Same grouping as run_all.py — main suite first, then errors, then refresh.
 TEST_MODULES = [
     "tests/test_suite.py",
+    "tests/itemCount/firearms_test.py",
+    "tests/itemCount/firearms4recount_test.py",
+    "tests/itemCount/premium_watch_test.py",
+    "tests/itemCount/premium_watch4recount_test.py",
+    "tests/itemCount/electronics_test.py",
+    "tests/itemCount/electronics4recount_test.py",
     "tests/login/loginerrors.py",
     "tests/item_manager/barcode_scan_error.py",
     "tests/itemLocator/assignitem_scan_error.py",

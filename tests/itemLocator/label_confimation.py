@@ -31,18 +31,23 @@ class TestLabelConfimation(SharedAppiumTestCase):
     @allure.feature("Verify CURRENT LABEL matches last setup change")
     def test_current_label_matches_last_setup_change(self) -> None:
         """Re-scan label → CURRENT LABEL must match what test_09 assigned."""
+        print("\n--- Preparing to Verify Setup Location Persistence ---")
         expected = (
             self.expected_setup_location
             or LabelConfimationPage.expected_location_from_setup
         )
         if not expected:
+            print("\n--- Test Skipped: No Expected Location Saved in Memory ---")
             self.skipTest(
                 "No expected location: run test_09 first or set "
                 "LabelConfimationPage.expected_location_from_setup."
             )
 
+        print(f"\n--- Expected Location to Match: {expected} ---")
+        print("\n--- Executing Label Verification Scan ---")
         actual = self.confirm_page.verify_current_label_matches(expected)
-
+        print(f"\n--- Verified Match! Actual Label Read: {actual} ---")
+        print("\n--- Returning to Dashboard via Hamburger Menu ---")
         self.assertEqual(
             LabelLocationAssignPage._normalize_label_key(actual),
             LabelLocationAssignPage._normalize_label_key(expected),

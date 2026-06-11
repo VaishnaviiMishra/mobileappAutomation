@@ -123,16 +123,16 @@ class Item4RecountPage(ItemCountPage):
         self.wait.until_present(self._resource(self.SUBMIT_UNMATCHED_BTN_ID)).click()
 
     def tap_go_to_count_home(self) -> None:
-        """Taps the 'Go to count home' button to abort submission on Attempt 4."""
-        self.wait.until_present(self._resource(self.GO_TO_COUNT_HOME_BTN_ID)).click()
-        
-        # Tell Appium to wait for the transition back to step1.xml to finish!
-        wait_until(
-            self.driver,
-            lambda: self.is_on_hub_screen(),
-            timeout=self.wait.timeout,
-            message="Did not navigate back to the Item Count hub screen after clicking 'Go to count home'."
-        )
+            """Taps the 'Go to count home' button to abort submission on Attempt 4."""
+            time.sleep(1) # Let the Unmatched screen settle
+            self.wait.until_present(self._resource(self.GO_TO_COUNT_HOME_BTN_ID)).click()
+            
+            wait_until(
+                self.driver,
+                lambda: self.is_on_hub_screen(),
+                timeout=self.wait.timeout,
+                message="Did not navigate back to the Item Count hub screen after clicking 'Go to count home'."
+            )
 
     def complete_jewelry_cases_for_attempt(self, *, amount: str | None = None) -> None:
         """Dynamically iterates through all cases until the Review button is found."""

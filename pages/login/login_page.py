@@ -8,6 +8,7 @@ from typing import Any
 from appium.webdriver.common.appiumby import AppiumBy
 
 from pages.common.appium_wait import AppiumWait, AppiumWaitTimeout, wait_for_present
+from pages.login.home_page import HomePage
 
 
 class LoginPage:
@@ -202,13 +203,28 @@ class LoginPage:
     def read_ip_field_value(self) -> str:
         return self._read_field_text(self.ip_address_input)
 
-    def complete_login_flow(self, employee_id: str, password: str, ip_address: str) -> None:
-        """Launch app → login screen → credentials → IP modal → Continue."""
+    def complete_login_flow(
+        self,
+        employee_id: str,
+        password: str,
+        ip_address: str,
+        home: HomePage | None = None,
+    ) -> str | None:
+        """
+        Launch app → login screen → credentials → IP modal → Continue.
+
+        When ``home`` is passed, also handles the post-login Data Sync popup
+        (wait for downloads → Close) or direct home navigation.
+        Returns ``"data_sync"``, ``"home"``, or ``None`` if ``home`` was omitted.
+        """
         self.launch_app()
         self.enter_credentials(employee_id, password)
         self.click_log_in()
         self.wait_for_ip_modal()
         self.ensure_ip_address_and_continue(ip_address)
+        if home is None:
+            return None
+        return home.handle_post_login_either_path()
 
     # --- Helpers ---
 

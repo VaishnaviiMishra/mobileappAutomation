@@ -23,7 +23,7 @@ class TestHomePage(SharedAppiumTestCase):
     def test_home_layout(self) -> None:
         """Verify all static UI elements on the home screen are visible."""
         self.assertTrue(self.home.is_home_visible(), "Should be on home screen.")
-
+        print("\n--- Verifying Static Dashboard UI Elements ---")
         self.assertTrue(self.home.hamburger_button.is_displayed())
         self.assertTrue(self.home.header_title.is_displayed())
         self.assertTrue(self.home.profile_button.is_displayed())
@@ -32,28 +32,35 @@ class TestHomePage(SharedAppiumTestCase):
         self.assertTrue(self.home.modules_heading.is_displayed())
         self.assertTrue(self.home.item_count_module.is_displayed())
         self.assertTrue(self.home.item_locator_module.is_displayed())
+        print("\n--- Dashboard Layout Verification Complete ---")
         self.assertTrue(self.home.retail_item_manager_module.is_displayed())
         self.assertTrue(self.home.drop_collection_module.is_displayed())
         self.assertTrue(self.home.app_version_footer.is_displayed())
+
 
     @allure.epic("1. User Action (App state, settings, auth)")
     @allure.feature("Data Sync popup layout verification")
     def test_data_sync_layout_if_visible(self) -> None:
         """If Data Sync popup appears, verify its elements before dismissing."""
+        print("\n--- Checking for Data Sync Popup ---")
         if not self.home.is_data_sync_visible():
+            print("\n--- Data Sync Popup Not Present, Skipping Test ---")
             self.skipTest("Data Sync popup not visible in this session.")
 
         self.assertTrue(self.home.data_sync_title.is_displayed())
         self.assertTrue(self.home.product_mdm_label.is_displayed())
         self.assertTrue(self.home.item_locations_label.is_displayed())
-
+        print("\n--- Waiting for Sync Downloads to Complete ---")
+        self.home.wait_for_sync_downloads_complete()
         downloaded = self.home.get_downloaded_elements()
         self.assertGreaterEqual(
             len(downloaded), 2,
             "Expected at least two 'Downloaded' statuses (Product MDM and Item Locations).",
         )
-        self.assertTrue(self.home.data_sync_close_button.is_displayed())
-
+        close_btn = self.home._find_data_sync_close_button()
+        self.assertIsNotNone(close_btn, "Close button should be visible and enabled after sync.")
+        self.assertTrue(close_btn.is_displayed())
+        print("\n--- Dismissing Data Sync Popup ---")
         self.home.dismiss_data_sync_popup()
         self.assertTrue(self.home.is_home_visible())
 

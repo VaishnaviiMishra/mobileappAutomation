@@ -49,6 +49,7 @@ class TestBarcodeScan(SharedAppiumTestCase):
     @allure.feature("Live barcode scan to item details")
     def test_retail_live_barcode_scan(self) -> None:
         """Default store: scan barcode, verify item details (silver / allowable discount)."""
+        
         self.retail.ensure_on_home_before_menu()
         self.retail.navigate_to_retail_item_manager_via_menu()
 
@@ -63,17 +64,19 @@ class TestBarcodeScan(SharedAppiumTestCase):
     @allure.feature("Store 14401 item details, edit color, and update flow")
     def test_retail_item_details_store_14401(self) -> None:
         """Store 14401: details, edit color, update/print, Item Updated modal, go home."""
+        print("\n--- Navigating to Retail Item Manager via Menu ---")
         self.retail.ensure_on_home_before_menu()
         self.retail.navigate_to_retail_item_manager_via_menu()
-
+        print(f"\n--- Looking up Item Number: {BarcodeScanPage.STORE_14401_ITEM_ID} ---")
         item_id = self.retail.lookup_item_number_to_details(BarcodeScanPage.STORE_14401_ITEM_ID)
         self.assertEqual(item_id.replace(" ", ""), BarcodeScanPage.STORE_14401_ITEM_ID)
-
+        print("\n--- Verifying Item Details Overview Page ---")
         self.retail.verify_item_details_overview(item_id)
+        print("\n--- Tapping Edit and Processing Color Update ---")
         self.retail.tap_edit_on_details()
         chosen_color = self.retail.complete_edit_color_and_update_flow(item_id)
         self.assertTrue(chosen_color)
-
+        print("\n--- Navigating back to Home from Confirmation Modal ---")
         self.retail.tap_go_home_from_item_updated_modal()
         self.assertTrue(self.home.is_home_visible())
 

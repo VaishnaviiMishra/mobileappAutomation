@@ -20,7 +20,7 @@ Usage:
 from __future__ import annotations
 
 import unittest
-
+import time
 import allure
 
 from pages.itemCount.item4recount_page import Item4RecountPage
@@ -76,11 +76,15 @@ def run_closing_jewelry_attempt4_flow(test_case, item4_recount: Item4RecountPage
 
     print("\n--- Tapping 'Go to count home' ---")
     item4_recount.tap_go_to_count_home()
+    
+    # Give the app 2 seconds to actually load and render the Item Count Hub
+    time.sleep(2)
+    
+    # Keep the original assertion: it MUST be the hub screen!
     test_case.assertTrue(
         item4_recount.is_on_hub_screen(),
         "Should have successfully navigated back to the Item Count hub.",
     )
-
 
 class TestItem4RecountFlow(SharedAppiumTestCase):
 

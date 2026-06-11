@@ -46,10 +46,16 @@ class TestRefreshData(SharedAppiumTestCase):
     @allure.feature("Profile menu layout verification")
     def test_01_account_menu_ui(self) -> None:
         """Verify profile menu layout (accountlogo.xml) without starting refresh."""
+        print("\n--- Opening Profile Menu from Dashboard ---")
         self.refresh.open_profile_menu_from_home()
+        
+        print("\n--- Verifying Account Menu UI Layout ---")
         self.refresh.verify_account_menu_layout()
+        
+        print("\n--- Closing Profile Menu ---")
         self.refresh.close_profile_menu()
         self.assertTrue(self.home.is_home_visible(), "Home should be visible after closing profile menu.")
+        print("--- Returned to Home Successfully ---")
 
     @allure.epic("1. User Action (App state, settings, auth)")
     @allure.feature("Refresh Product MDM data sync flow")
@@ -59,7 +65,10 @@ class TestRefreshData(SharedAppiumTestCase):
 
         Can take 5–15+ minutes (EZPAWNPAL_MDM_REFRESH_TIMEOUT, default 900s).
         """
+        print("\n--- Starting Product MDM Data Refresh Flow ---")
         self.refresh.run_refresh_product_mdm_flow()
+        
+        print("\n--- MDM Refresh Complete. Verifying Return to Dashboard ---")
         self.assertTrue(self.home.is_home_visible(), "Home should be visible after MDM refresh.")
 
     @allure.epic("1. User Action (App state, settings, auth)")
@@ -70,7 +79,10 @@ class TestRefreshData(SharedAppiumTestCase):
 
         Can take 5–15+ minutes (EZPAWNPAL_LOCATIONS_REFRESH_TIMEOUT, default 900s).
         """
+        print("\n--- Starting Item Locations Data Refresh Flow ---")
         self.refresh.run_refresh_item_locations_flow()
+        
+        print("\n--- Item Locations Refresh Complete. Verifying Return to Dashboard ---")
         self.assertTrue(
             self.home.is_home_visible(),
             "Home should be visible after Item Locations refresh.",

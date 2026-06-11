@@ -13,6 +13,33 @@ class AppiumWaitTimeout(Exception):
     """Raised when a condition is not met within the allotted time."""
 
 
+class AppiumDriverDeadError(Exception):
+    """Raised when the Appium/UiAutomator2 session is no longer usable."""
+
+
+_FATAL_DRIVER_MARKERS = (
+    "instrumentation process is not running",
+    "cannot be proxied to uiautomator2",
+    "session is either terminated",
+    "invalid session id",
+    "a session is either terminated",
+    "no such driver",
+)
+
+
+def is_fatal_driver_error(exc: BaseException) -> bool:
+    """True when retrying find/wait on the same driver will not recover."""
+    if isinstance(exc, AppiumDriverDeadError):
+        return True
+    msg = str(exc).lower()
+    return any(marker in msg for marker in _FATAL_DRIVER_MARKERS)
+
+
+def _reraise_if_fatal_driver_error(exc: BaseException) -> None:
+    if is_fatal_driver_error(exc):
+        raise AppiumDriverDeadError(str(exc)) from exc
+
+
 def _first_displayed(driver, by: str, value: str) -> Any | None:
     for el in driver.find_elements(by, value):
         try:
@@ -40,6 +67,7 @@ def wait_for_present(
             if el is not None:
                 return el
         except Exception as e:
+            _reraise_if_fatal_driver_error(e)
             last = e
         time.sleep(poll)
     msg = message or f"Element not found within {timeout}s: {locator!r}"
@@ -69,6 +97,7 @@ def wait_for_clickable(
                     last = e
                     continue
         except Exception as e:
+            _reraise_if_fatal_driver_error(e)
             last = e
         time.sleep(poll)
     msg = message or f"Element not clickable within {timeout}s: {locator!r}"
@@ -93,6 +122,7 @@ def wait_until(
             if out is not None:
                 return out
         except Exception as e:
+            _reraise_if_fatal_driver_error(e)
             last = e
         time.sleep(poll)
     if last:

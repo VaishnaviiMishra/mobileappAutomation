@@ -27,6 +27,7 @@ from tests.shared_session import SharedAppiumTestCase
 
 def run_full_jewelry_recount_flow(test_case, item_recount: ItemRecountPage) -> None:
     """Shared recount flow body used by standalone and full-suite tests."""
+    print("\n--- Navigating to Item Count Hub ---")
     item_recount.open_from_home()
 
     if item_recount.is_opening_jewelry_completed():
@@ -34,7 +35,8 @@ def run_full_jewelry_recount_flow(test_case, item_recount: ItemRecountPage) -> N
         print(f"\n{msg}")
         allure.dynamic.description(msg)
         return
-
+  
+    print("\n--- Selecting Opening Jewelry and Starting Count ---")
     item_recount.select_opening_jewelry()
     item_recount.tap_start_count()
 
@@ -47,7 +49,8 @@ def run_full_jewelry_recount_flow(test_case, item_recount: ItemRecountPage) -> N
 
     print("\n--- Reached Final Approval Screen ---")
     item_recount.verify_approve_screen()
-
+    
+    print("\n--- Verifying Submit Without Recount Button ---")
     submit_button = item_recount.wait.until_present(
         item_recount._resource(ItemRecountPage.SUBMIT_WITHOUT_RECOUNT_BTN_ID)
     )
